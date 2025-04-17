@@ -1,108 +1,116 @@
-
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <title>惡靈古堡3 - 錯位場景模擬</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=no">
   <style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
+    html, body {
       margin: 0;
-      font-family: sans-serif;
+      padding: 0;
       overflow: hidden;
+      touch-action: none;
+      font-family: sans-serif;
     }
     #viewport {
       width: 100vw;
       height: 100vh;
-      position: relative;
       overflow: hidden;
+      position: relative;
+      touch-action: none;
     }
     #gameArea {
-      width: 200vw;
-      height: 100vh;
+      width: 2000px;
+      height: 1000px;
       background-image: url('https://image1.gamme.com.tw/news2/2025/16/3/qZ7H05_ew6GdqauZkZ2dl43Y1d4.webp');
       background-size: cover;
-      position: relative;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: absolute;
+      left: 0;
+      top: 0;
+      touch-action: none;
+      transform-origin: center center;
     }
     .character {
       position: absolute;
-      width: 10vw;
-      height: 10vw;
-      max-width: 200px;
-      max-height: 200px;
+      width: 200px;
+      height: 200px;
       background-size: cover;
       background-position: center;
     }
     #jill {
-      top: 10vh;
-      left: 75vw;
+      top: 100px;
+      left: 1500px;
       background-image: url('https://s.yimg.com/os/creatr-uploaded-images/2019-12/d92e0c30-254b-11ea-bf72-ccd9056172b3');
     }
     #dog {
-      top: 70vh;
-      left: -15vw;
+      top: 680px;
+      left: -300px;
       background-image: url('https://i.ytimg.com/vi/_Yo7RTDRQ6g/hqdefault.jpg');
     }
     #corpse {
-      top: 72vh;
-      left: 43.5vw;
-      width: 12vw;
-      height: 8vw;
+      top: 720px;
+      left: 870px;
+      width: 240px;
+      height: 160px;
       background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJPxwWQCF8yT9TcKvehq7MDzG2er1grlblEVa_srYZc0iUIyzY');
-    }
-    #blood {
-      position: absolute;
-      width: 8vw;
-      height: 8vw;
-      background-image: url('https://pngimg.com/uploads/blood/blood_PNG6139.png');
-      background-size: contain;
-      background-repeat: no-repeat;
-      top: 71vh;
-      left: 44vw;
-      opacity: 0;
+      background-size: cover;
     }
     .speech-bubble {
       position: absolute;
       background: #fff;
-      padding: 0.5em;
+      padding: 8px;
       border-radius: 10px;
       border: 2px solid #333;
-      font-size: 0.8em;
-      max-width: 30vw;
+      max-width: 120px;
+      font-size: 14px;
       z-index: 10;
     }
     #dog-bubble {
-      top: 63vh;
-      left: 40vw;
+      top: 630px;
+      left: 800px;
       display: none;
     }
-    #replayBtn {
+    #blood {
       position: absolute;
-      top: 2vh;
-      left: 2vw;
-      padding: 0.8em 1.2em;
-      font-size: 1em;
-      z-index: 100;
+      width: 160px;
+      height: 160px;
+      background-image: url('https://pngimg.com/uploads/blood/blood_PNG6139.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      top: 710px;
+      left: 880px;
+      opacity: 0;
     }
-
     @keyframes splatter {
       0% { opacity: 0; transform: scale(0.3); }
       100% { opacity: 1; transform: scale(1); }
     }
-
-    @media (max-width: 768px) {
-      .character {
-        width: 16vw;
-        height: 16vw;
-      }
-      .speech-bubble {
-        font-size: 0.6em;
-        max-width: 50vw;
-      }
+    #replayBtn, #fullscreenBtn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      z-index: 100;
+      margin-bottom: 10px;
+    }
+    #fullscreenBtn {
+      top: 60px;
+    }
+    #controlPanel {
+      position: absolute;
+      top: 120px;
+      left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 100;
+    }
+    #controlPanel button {
+      padding: 8px 16px;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -110,6 +118,12 @@
 
 <div id="viewport">
   <button id="replayBtn" onclick="restartScene()">重播</button>
+  <button id="fullscreenBtn">全螢幕</button>
+  <div id="controlPanel">
+    <button onclick="restartScene()">重播</button>
+    <button onclick="alert('尚未實作')">道具</button>
+    <button onclick="alert('尚未實作')">切換角色</button>
+  </div>
   <div id="gameArea">
     <div id="jill" class="character"></div>
     <div id="dog" class="character"></div>
@@ -127,24 +141,25 @@
   const jill = document.getElementById('jill');
   const blood = document.getElementById('blood');
   const bubble = document.getElementById('dog-bubble');
+  const gameArea = document.getElementById('gameArea');
   const biteSound = document.getElementById('biteSound');
   const bloodSound = document.getElementById('bloodSound');
+
+  let scale = 1, startX = 0, startY = 0, isDragging = false;
 
   function playSounds() {
     biteSound.currentTime = 0;
     bloodSound.currentTime = 0;
     biteSound.play();
-    setTimeout(() => {
-      bloodSound.play();
-    }, 1000);
+    setTimeout(() => bloodSound.play(), 1000);
   }
 
   function dogEnterAndBite() {
-    let left = -15;
-    const stopAt = 44;
+    let left = -300;
+    const stopAt = 880;
     const walkInterval = setInterval(() => {
-      left += 0.5;
-      dog.style.left = `${left}vw`;
+      left += 5;
+      dog.style.left = `${left}px`;
       if (left >= stopAt) {
         clearInterval(walkInterval);
         startBite();
@@ -153,7 +168,6 @@
   }
 
   function startBite() {
-    dog.style.animation = 'bite 1.5s infinite';
     blood.style.animation = 'splatter 2s forwards';
     bubble.style.display = 'block';
     playSounds();
@@ -161,28 +175,93 @@
 
   function moveJillRandomly() {
     setInterval(() => {
-      const randX = 75 + Math.random() * 10;
-      const randY = 10 + Math.random() * 5;
-      jill.style.left = `${randX}vw`;
-      jill.style.top = `${randY}vh`;
-    }, 2000);
+      const randX = 1500 + Math.random() * 200;
+      const randY = 100 + Math.random() * 100;
+      jill.style.left = `${randX}px`;
+      jill.style.top = `${randY}px`;
+    }, 3000);
+  }
+
+  function moveJillRandomlyInPlace() {
+    setInterval(() => {
+      const offsetX = (Math.random() - 0.5) * 20;
+      const offsetY = (Math.random() - 0.5) * 20;
+      jill.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+    }, 1000);
   }
 
   function restartScene() {
-    dog.style.left = '-15vw';
-    dog.style.animation = 'none';
+    dog.style.left = '-300px';
     blood.style.animation = 'none';
     bubble.style.display = 'none';
+    jill.style.transform = 'translate(0,0)';
     void blood.offsetWidth;
-    setTimeout(() => {
-      dogEnterAndBite();
-    }, 300);
+    setTimeout(dogEnterAndBite, 300);
   }
+
+  // 拖曳
+  gameArea.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      isDragging = true;
+      startX = e.touches[0].clientX - gameArea.offsetLeft;
+      startY = e.touches[0].clientY - gameArea.offsetTop;
+    }
+  });
+  gameArea.addEventListener('touchmove', (e) => {
+    if (isDragging && e.touches.length === 1) {
+      const x = e.touches[0].clientX - startX;
+      const y = e.touches[0].clientY - startY;
+      gameArea.style.left = `${x}px`;
+      gameArea.style.top = `${y}px`;
+    }
+  });
+  gameArea.addEventListener('touchend', () => {
+    isDragging = false;
+  });
+
+  // Pinch zoom
+  let initialDistance = 0;
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      initialDistance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+    }
+  });
+  document.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2) {
+      const newDistance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const zoom = newDistance / initialDistance;
+      scale = Math.min(2, Math.max(0.5, scale * zoom));
+      gameArea.style.transform = `scale(${scale})`;
+      initialDistance = newDistance;
+    }
+  });
+
+  // 全螢幕
+  document.getElementById('fullscreenBtn').onclick = () => {
+    const elem = document.documentElement;
+    if (!document.fullscreenElement) {
+      elem.requestFullscreen().catch(err => alert(`無法進入全螢幕：${err.message}`));
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  // 橫直螢幕變更提示
+  window.addEventListener('orientationchange', () => {
+    console.log(`螢幕方向變更為：${screen.orientation.type}`);
+  });
 
   window.onload = () => {
     dogEnterAndBite();
     moveJillRandomly();
-  };
+    moveJillRandomlyInPlace();
+  }
 </script>
 
 </body>
