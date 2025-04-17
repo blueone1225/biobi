@@ -1,89 +1,108 @@
+
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <title>惡靈古堡3 - 錯位場景模擬</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
-      overflow: hidden;
       font-family: sans-serif;
+      overflow: hidden;
     }
     #viewport {
       width: 100vw;
       height: 100vh;
-      overflow: hidden;
       position: relative;
+      overflow: hidden;
     }
     #gameArea {
-      width: 2000px;
-      height: 1000px;
+      width: 200vw;
+      height: 100vh;
       background-image: url('https://image1.gamme.com.tw/news2/2025/16/3/qZ7H05_ew6GdqauZkZ2dl43Y1d4.webp');
       background-size: cover;
       position: relative;
     }
     .character {
       position: absolute;
-      width: 200px;
-      height: 200px;
+      width: 10vw;
+      height: 10vw;
+      max-width: 200px;
+      max-height: 200px;
       background-size: cover;
       background-position: center;
     }
     #jill {
-      top: 100px;
-      left: 1500px;
+      top: 10vh;
+      left: 75vw;
       background-image: url('https://s.yimg.com/os/creatr-uploaded-images/2019-12/d92e0c30-254b-11ea-bf72-ccd9056172b3');
     }
     #dog {
-      top: 680px;
-      left: -300px; /* 初始畫面外 */
+      top: 70vh;
+      left: -15vw;
       background-image: url('https://i.ytimg.com/vi/_Yo7RTDRQ6g/hqdefault.jpg');
     }
     #corpse {
-      top: 720px;
-      left: 870px;
-      width: 240px;
-      height: 160px;
+      top: 72vh;
+      left: 43.5vw;
+      width: 12vw;
+      height: 8vw;
       background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJPxwWQCF8yT9TcKvehq7MDzG2er1grlblEVa_srYZc0iUIyzY');
-      background-size: cover;
+    }
+    #blood {
+      position: absolute;
+      width: 8vw;
+      height: 8vw;
+      background-image: url('https://pngimg.com/uploads/blood/blood_PNG6139.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      top: 71vh;
+      left: 44vw;
+      opacity: 0;
     }
     .speech-bubble {
       position: absolute;
       background: #fff;
-      padding: 8px;
+      padding: 0.5em;
       border-radius: 10px;
       border: 2px solid #333;
-      max-width: 120px;
-      font-size: 14px;
+      font-size: 0.8em;
+      max-width: 30vw;
       z-index: 10;
     }
     #dog-bubble {
-      top: 630px;
-      left: 800px;
+      top: 63vh;
+      left: 40vw;
       display: none;
     }
-    #blood {
+    #replayBtn {
       position: absolute;
-      width: 160px;
-      height: 160px;
-      background-image: url('https://pngimg.com/uploads/blood/blood_PNG6139.png');
-      background-size: contain;
-      background-repeat: no-repeat;
-      top: 710px;
-      left: 880px;
-      opacity: 0;
+      top: 2vh;
+      left: 2vw;
+      padding: 0.8em 1.2em;
+      font-size: 1em;
+      z-index: 100;
     }
+
     @keyframes splatter {
       0% { opacity: 0; transform: scale(0.3); }
       100% { opacity: 1; transform: scale(1); }
     }
-    #replayBtn {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      z-index: 100;
+
+    @media (max-width: 768px) {
+      .character {
+        width: 16vw;
+        height: 16vw;
+      }
+      .speech-bubble {
+        font-size: 0.6em;
+        max-width: 50vw;
+      }
     }
   </style>
 </head>
@@ -121,12 +140,11 @@
   }
 
   function dogEnterAndBite() {
-    let left = -300;
-    let step = 5;
-    const stopAt = 880;
+    let left = -15;
+    const stopAt = 44;
     const walkInterval = setInterval(() => {
-      left += step;
-      dog.style.left = `${left}px`;
+      left += 0.5;
+      dog.style.left = `${left}vw`;
       if (left >= stopAt) {
         clearInterval(walkInterval);
         startBite();
@@ -136,23 +154,22 @@
 
   function startBite() {
     dog.style.animation = 'bite 1.5s infinite';
-    document.getElementById('blood').style.animation = 'splatter 2s forwards';
+    blood.style.animation = 'splatter 2s forwards';
     bubble.style.display = 'block';
     playSounds();
   }
 
   function moveJillRandomly() {
     setInterval(() => {
-      const randX = 1500 + Math.random() * 200;
-      const randY = 100 + Math.random() * 100;
-      jill.style.left = `${randX}px`;
-      jill.style.top = `${randY}px`;
+      const randX = 75 + Math.random() * 10;
+      const randY = 10 + Math.random() * 5;
+      jill.style.left = `${randX}vw`;
+      jill.style.top = `${randY}vh`;
     }, 2000);
   }
 
   function restartScene() {
-    // Reset
-    dog.style.left = '-300px';
+    dog.style.left = '-15vw';
     dog.style.animation = 'none';
     blood.style.animation = 'none';
     bubble.style.display = 'none';
@@ -165,7 +182,7 @@
   window.onload = () => {
     dogEnterAndBite();
     moveJillRandomly();
-  }
+  };
 </script>
 
 </body>
