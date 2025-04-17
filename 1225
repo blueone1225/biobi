@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>錯位演出 - 惡靈古堡3模擬</title>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+    }
+    #scene {
+      width: 800px;
+      height: 600px;
+      margin: 20px auto;
+      position: relative;
+      background-color: #333;
+      background-image: url('https://image1.gamme.com.tw/news2/2025/16/3/qZ7H05_ew6GdqauZkZ2dl43Y1d4.webp');
+      background-size: cover;
+      background-position: center;
+      border: 4px solid #666;
+    }
+    .character, .corpse, .dog {
+      position: absolute;
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+    .character {
+      width: 100px;
+      height: 160px;
+      background-image: url('https://s.yimg.com/os/creatr-uploaded-images/2019-12/d92e0c30-254b-11ea-bf72-ccd9056172b3');
+      bottom: 50px;
+      left: 100px;
+    }
+    .corpse {
+      width: 120px;
+      height: 60px;
+      background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJPxwWQCF8yT9TcKvehq7MDzG2er1grlblEVa_srYZc0iUIyzY');
+      bottom: 40px;
+      left: 300px;
+      transform: rotate(90deg);
+    }
+    .dog {
+      width: 120px;
+      height: 90px;
+      background-image: url('https://i.ytimg.com/vi/_Yo7RTDRQ6g/hqdefault.jpg');
+      bottom: 40px;
+      left: 700px;
+      transition: bottom 0.3s ease;
+    }
+    .dialogue {
+      position: absolute;
+      bottom: 130px;
+      left: 670px;
+      background-color: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 16px;
+      max-width: 160px;
+      display: none;
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <h1>錯位演出：殭屍犬咬錯對象模擬</h1>
+  <div id="scene">
+    <div class="character" id="jill"></div>
+    <div class="corpse" id="corpse"></div>
+    <div class="dog" id="dog"></div>
+    <div class="dialogue" id="dialogue">好吃……嗯？不對？</div>
+  </div>
+
+  <script>
+    const dog = document.getElementById("dog");
+    const corpse = document.getElementById("corpse");
+    const dialogue = document.getElementById("dialogue");
+
+    let biteLevel = 0;
+    let hasSpoken = false;
+
+    function moveDogTowardCorpse() {
+      const dogX = dog.offsetLeft;
+      const corpseX = corpse.offsetLeft;
+
+      if (dogX > corpseX + 30) {
+        dog.style.left = (dogX - 2) + "px";
+      } else {
+        biteCorpse();
+      }
+    }
+
+    function biteCorpse() {
+      if (biteLevel < 6) {
+        biteLevel++;
+        dog.style.bottom = (40 + biteLevel * 10) + "px";
+
+        // 顯示泡泡文字一次
+        if (!hasSpoken) {
+          dialogue.style.display = "block";
+          hasSpoken = true;
+        }
+
+        setTimeout(biteCorpse, 600);
+      }
+    }
+
+    setInterval(moveDogTowardCorpse, 30);
+  </script>
+</body>
+</html>
