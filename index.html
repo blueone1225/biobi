@@ -30,9 +30,8 @@
     }
     #dog {
       top: 680px;
-      left: 880px;
+      left: -150px;
       background-image: url('https://i.ytimg.com/vi/_Yo7RTDRQ6g/hqdefault.jpg');
-      animation: bite 4s infinite;
     }
     #corpse {
       top: 720px;
@@ -45,6 +44,16 @@
       0% { top: 720px; }
       50% { top: 680px; }
       100% { top: 720px; }
+    }
+    @keyframes walkIn {
+      from { left: -150px; }
+      to { left: 880px; }
+    }
+    .walking {
+      animation: walkIn 3s forwards linear;
+    }
+    .biting {
+      animation: bite 4s infinite;
     }
     .speech-bubble {
       position: absolute;
@@ -70,7 +79,6 @@
       top: 710px;
       left: 880px;
       opacity: 0;
-      animation: splatter 2s forwards;
     }
     @keyframes splatter {
       0% { opacity: 0; transform: scale(0.3); }
@@ -111,6 +119,8 @@
 <script>
   const viewport = document.getElementById('viewport');
   const gameArea = document.getElementById('gameArea');
+  const dog = document.getElementById('dog');
+  const blood = document.getElementById('blood');
   const biteSound = document.getElementById('biteSound');
   const bloodSound = document.getElementById('bloodSound');
 
@@ -121,6 +131,17 @@
     setTimeout(() => {
       bloodSound.play();
     }, 1500);
+  }
+
+  function startDogSequence() {
+    dog.classList.add('walking');
+    setTimeout(() => {
+      dog.classList.remove('walking');
+      dog.style.left = '880px';
+      dog.classList.add('biting');
+      blood.style.animation = 'splatter 2s forwards';
+      playSounds();
+    }, 3200);
   }
 
   function autoPanScene() {
@@ -134,15 +155,18 @@
   }
 
   function restartScene() {
-    document.getElementById('blood').style.animation = 'none';
-    void document.getElementById('blood').offsetWidth;
-    document.getElementById('blood').style.animation = 'splatter 2s forwards';
-    playSounds();
+    blood.style.animation = 'none';
+    void blood.offsetWidth;
+    blood.style.animation = 'splatter 2s forwards';
+    dog.classList.remove('biting');
+    dog.style.left = '-150px';
+    void dog.offsetWidth;
+    startDogSequence();
   }
 
   window.onload = () => {
-    playSounds();
     autoPanScene();
+    startDogSequence();
   }
 </script>
 
