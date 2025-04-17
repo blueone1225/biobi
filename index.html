@@ -9,6 +9,12 @@
       overflow: hidden;
       font-family: sans-serif;
     }
+    #viewport {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
     #gameArea {
       width: 2000px;
       height: 1000px;
@@ -18,42 +24,28 @@
     }
     .character {
       position: absolute;
-      width: 100px;
-      height: 100px;
+      width: 200px;
+      height: 200px;
       background-size: cover;
       background-position: center;
     }
     #jill {
-      top: 600px;
-      left: 900px;
+      top: 100px;
+      left: 1500px;
       background-image: url('https://s.yimg.com/os/creatr-uploaded-images/2019-12/d92e0c30-254b-11ea-bf72-ccd9056172b3');
     }
     #dog {
       top: 680px;
-      left: -150px;
+      left: -300px; /* 初始畫面外 */
       background-image: url('https://i.ytimg.com/vi/_Yo7RTDRQ6g/hqdefault.jpg');
     }
     #corpse {
       top: 720px;
       left: 870px;
-      width: 120px;
-      height: 80px;
+      width: 240px;
+      height: 160px;
       background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJPxwWQCF8yT9TcKvehq7MDzG2er1grlblEVa_srYZc0iUIyzY');
-    }
-    @keyframes bite {
-      0% { top: 720px; }
-      50% { top: 680px; }
-      100% { top: 720px; }
-    }
-    @keyframes walkIn {
-      from { left: -150px; }
-      to { left: 880px; }
-    }
-    .walking {
-      animation: walkIn 3s forwards linear;
-    }
-    .biting {
-      animation: bite 4s infinite;
+      background-size: cover;
     }
     .speech-bubble {
       position: absolute;
@@ -68,11 +60,12 @@
     #dog-bubble {
       top: 630px;
       left: 800px;
+      display: none;
     }
     #blood {
       position: absolute;
-      width: 80px;
-      height: 80px;
+      width: 160px;
+      height: 160px;
       background-image: url('https://pngimg.com/uploads/blood/blood_PNG6139.png');
       background-size: contain;
       background-repeat: no-repeat;
@@ -83,12 +76,6 @@
     @keyframes splatter {
       0% { opacity: 0; transform: scale(0.3); }
       100% { opacity: 1; transform: scale(1); }
-    }
-    #viewport {
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      position: relative;
     }
     #replayBtn {
       position: absolute;
@@ -117,10 +104,10 @@
 <audio id="bloodSound" src="https://cdn.pixabay.com/audio/2023/09/03/audio_d2a6c0f76f.mp3"></audio>
 
 <script>
-  const viewport = document.getElementById('viewport');
-  const gameArea = document.getElementById('gameArea');
   const dog = document.getElementById('dog');
+  const jill = document.getElementById('jill');
   const blood = document.getElementById('blood');
+  const bubble = document.getElementById('dog-bubble');
   const biteSound = document.getElementById('biteSound');
   const bloodSound = document.getElementById('bloodSound');
 
@@ -130,43 +117,54 @@
     biteSound.play();
     setTimeout(() => {
       bloodSound.play();
-    }, 1500);
+    }, 1000);
   }
 
-  function startDogSequence() {
-    dog.classList.add('walking');
-    setTimeout(() => {
-      dog.classList.remove('walking');
-      dog.style.left = '880px';
-      dog.classList.add('biting');
-      blood.style.animation = 'splatter 2s forwards';
-      playSounds();
-    }, 3200);
-  }
-
-  function autoPanScene() {
-    let x = 0;
-    let dir = 1;
-    setInterval(() => {
-      x += dir * 1;
-      if (x > 500 || x < 0) dir *= -1;
-      gameArea.style.transform = `translateX(${-x}px)`;
+  function dogEnterAndBite() {
+    let left = -300;
+    let step = 5;
+    const stopAt = 880;
+    const walkInterval = setInterval(() => {
+      left += step;
+      dog.style.left = `${left}px`;
+      if (left >= stopAt) {
+        clearInterval(walkInterval);
+        startBite();
+      }
     }, 30);
   }
 
+  function startBite() {
+    dog.style.animation = 'bite 1.5s infinite';
+    document.getElementById('blood').style.animation = 'splatter 2s forwards';
+    bubble.style.display = 'block';
+    playSounds();
+  }
+
+  function moveJillRandomly() {
+    setInterval(() => {
+      const randX = 1500 + Math.random() * 200;
+      const randY = 100 + Math.random() * 100;
+      jill.style.left = `${randX}px`;
+      jill.style.top = `${randY}px`;
+    }, 2000);
+  }
+
   function restartScene() {
+    // Reset
+    dog.style.left = '-300px';
+    dog.style.animation = 'none';
     blood.style.animation = 'none';
+    bubble.style.display = 'none';
     void blood.offsetWidth;
-    blood.style.animation = 'splatter 2s forwards';
-    dog.classList.remove('biting');
-    dog.style.left = '-150px';
-    void dog.offsetWidth;
-    startDogSequence();
+    setTimeout(() => {
+      dogEnterAndBite();
+    }, 300);
   }
 
   window.onload = () => {
-    autoPanScene();
-    startDogSequence();
+    dogEnterAndBite();
+    moveJillRandomly();
   }
 </script>
 
