@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -6,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>神印加護 · RPG 起始事件</title>
 <style>
-  * {
-    box-sizing: border-box;
-  }
+  * { box-sizing: border-box; }
   body {
     background: radial-gradient(#0a0a0a, #020202);
     font-family: "Noto Serif TC", serif;
@@ -21,13 +18,8 @@
     color: #88f0ff;
     text-shadow: 0 0 5px #5fffd6;
   }
-  .step {
-    display: none;
-    margin-top: 30px;
-  }
-  .step.active {
-    display: block;
-  }
+  .step { display: none; margin-top: 30px; }
+  .step.active { display: block; }
   .choices {
     display: flex;
     justify-content: center;
@@ -35,8 +27,7 @@
     flex-wrap: wrap;
     margin-top: 20px;
   }
-  .choice-btn,
-  button {
+  .choice-btn, button {
     background: #111;
     border: 2px solid #44f8ff;
     color: #fff;
@@ -46,8 +37,7 @@
     transition: all 0.3s;
     min-width: 100px;
   }
-  .choice-btn:hover,
-  button:hover {
+  .choice-btn:hover, button:hover {
     background: #44f8ff;
     color: black;
   }
@@ -99,7 +89,6 @@
 <body>
   <h1>神印加護 · 初始啟示</h1>
 
-  <!-- 步驟一：選擇角色 -->
   <div id="step1" class="step active">
     <h2>選擇你的出身角色</h2>
     <div class="choices">
@@ -109,7 +98,6 @@
     </div>
   </div>
 
-  <!-- 步驟二：選擇神系 -->
   <div id="step2" class="step">
     <h2>選擇你信仰的神</h2>
     <div class="choices">
@@ -121,12 +109,10 @@
     </div>
   </div>
 
-  <!-- 顯示選擇神的圖片 -->
   <div id="godImageWrapper" style="display:none;">
     <img id="godImage" src="" alt="神像" />
   </div>
 
-  <!-- 步驟三：神印動畫與能力 -->
   <div id="step3" class="step">
     <h2>啟動神印儀式</h2>
     <canvas id="sealCanvas" width="300" height="300"></canvas><br />
@@ -134,7 +120,6 @@
     <div id="result"></div>
   </div>
 
-  <!-- 步驟四：試煉啟示 -->
   <div id="step4" class="step">
     <h2>神語傳來...</h2>
     <div id="trialBackground"></div>
@@ -143,157 +128,138 @@
   </div>
 
 <script>
-  let selectedRole = "";
-  let selectedGod = "";
-
-  const canvas = document.getElementById("sealCanvas");
-  const ctx = canvas.getContext("2d");
-
-  // 圖片連結對應（已確認無誤）
-  const godImages = {
-    "若神": "https://i.imgur.com/xstAt6B.jpeg",
-    "土地神": "https://otakuusamagazine.com/wp-content/uploads/2025/01/teogonia-pv-480x360.jpg",
-    "強神": "https://yt3.ggpht.com/uvmIHqQWPYNqU2OdUw6FYOIiXxZfYuZw4FExu9GpYlMhaqrz1wTPNvjFf_lBTCuzgvFWfujEkyJ7=s800-c-fcrop64=1,3f1b0000cdbaffff-rw-nd-v1",
-    "山谷神": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB31qCHoIEW88Q-jfet_iAMAd75CJCb3AZ1g&s",
-    "惡神": "https://staticg.sportskeeda.com/editor/2025/06/68a9f-17498350533509-1920.jpg"
-  };
-
-  // 試煉背景圖 - 保留神秘感和原有圖示
-  const trialBackgrounds = {
-    "若神": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80", // 神秘蒼藍山谷
-    "土地神": "https://otakuusamagazine.com/wp-content/uploads/2025/01/teogonia-pv-480x360.jpg", // 原土地神背景
-    "強神": "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=800&q=80", // 幻象符文圈
-    "山谷神": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB31qCHoIEW88Q-jfet_iAMAd75CJCb3AZ1g&s",
-    "惡神": "https://staticg.sportskeeda.com/editor/2025/06/68a9f-17498350533509-1920.jpg"
-  };
-
-  const abilityPool = {
-    村民: ["微光庇佑", "草根韌性", "夜視", "靜心術"],
-    冒險者: ["斬擊強化", "火彈術", "急速衝刺", "耐毒體質"],
-    亞人: ["獸爪術", "吼震", "藤蔓纏繞", "感應靈氣"]
-  };
-
-  const godBonus = {
-    土地神: "祝福延展 +1回合",
-    山谷神: "自然系能力強化",
-    惡神: "提升暴擊機率",
-    若神: "神性護盾 +30秒",
-    強神: "力量爆發 +10%",
-  };
-
-  // 顯示指定步驟
-  function showStep(stepNum) {
-    document.querySelectorAll(".step").forEach((el) => el.classList.remove("active"));
-    document.getElementById("step" + stepNum).classList.add("active");
+let selectedRole = "";
+let selectedGod = "";
+const canvas = document.getElementById("sealCanvas");
+const ctx = canvas.getContext("2d");
+const godImages = {
+  "若神": "https://i.imgur.com/xstAt6B.jpeg",
+  "土地神": "https://otakuusamagazine.com/wp-content/uploads/2025/01/teogonia-pv-480x360.jpg",
+  "強神": "https://yt3.ggpht.com/uvmIHqQWPYNqU2OdUw6FYOIiXxZfYuZw4FExu9GpYlMhaqrz1wTPNvjFf_lBTCuzgvFWfujEkyJ7=s800-c-fcrop64=1,3f1b0000cdbaffff-rw-nd-v1",
+  "山谷神": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB31qCHoIEW88Q-jfet_iAMAd75CJCb3AZ1g&s",
+  "惡神": "https://staticg.sportskeeda.com/editor/2025/06/68a9f-17498350533509-1920.jpg"
+};
+const trialBackgrounds = {
+  "若神": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+  "土地神": "https://otakuusamagazine.com/wp-content/uploads/2025/01/teogonia-pv-480x360.jpg",
+  "強神": "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=800&q=80",
+  "山谷神": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB31qCHoIEW88Q-jfet_iAMAd75CJCb3AZ1g&s",
+  "惡神": "https://staticg.sportskeeda.com/editor/2025/06/68a9f-17498350533509-1920.jpg"
+};
+const abilityPool = {
+  村民: ["微光庇佑", "草根韌性", "夜視", "靜心術"],
+  冒險者: ["斬擊強化", "火彈術", "急速衝刺", "耐毒體質"],
+  亞人: ["獸爪術", "吼震", "藤蔓纏繞", "感應靈氣"]
+};
+const godBonus = {
+  土地神: "祝福延展 +1回合",
+  山谷神: "自然系能力強化",
+  惡神: "提升暴擊機率",
+  若神: "神性護盾 +30秒",
+  強神: "力量爆發 +10%",
+};
+function showStep(stepNum) {
+  document.querySelectorAll(".step").forEach((el) => el.classList.remove("active"));
+  document.getElementById("step" + stepNum).classList.add("active");
+}
+function selectRole(role) {
+  selectedRole = role;
+  showStep(2);
+}
+function selectGod(god) {
+  selectedGod = god;
+  document.getElementById("godImage").src = godImages[god] || "";
+  document.getElementById("godImageWrapper").style.display = "block";
+  showStep(3);
+  drawEnhancedSeal(0, 1);
+}
+function startAwakening() {
+  if (!selectedRole || !selectedGod) {
+    alert("請先選擇角色與神系");
+    return;
   }
-
-  function selectRole(role) {
-    selectedRole = role;
-    showStep(2);
-  }
-
-  function selectGod(god) {
-    selectedGod = god;
-    // 顯示神像
-    const godImg = document.getElementById("godImage");
-    godImg.src = godImages[god] || "";
-    godImg.alt = god + " 形象";
-
-    document.getElementById("godImageWrapper").style.display = "block";
-
-    showStep(3);
-    drawSeal(0); // 初始化 seal
-  }
-
-  // 神印動畫繪製
-  function drawSeal(rotation = 0) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    ctx.save();
-    ctx.translate(centerX, centerY);
-    ctx.rotate(rotation);
-
-    ctx.beginPath();
-    ctx.arc(0, 0, 120, 0, Math.PI * 2);
-    ctx.strokeStyle = "#44f8ff";
-    ctx.lineWidth = 8;
-    ctx.shadowColor = "#44f8ff";
-    ctx.shadowBlur = 20;
-    ctx.stroke();
-
-    // 內圈符號簡化版 (星形)
-    ctx.beginPath();
-    for (let i = 0; i < 5; i++) {
-      ctx.lineTo(0, -80);
-      ctx.translate(0, -80);
-      ctx.rotate((Math.PI * 2) / 5);
-      ctx.lineTo(0, 80);
-      ctx.translate(0, 80);
-      ctx.rotate(-(Math.PI * 2) / 5);
+  let rotation = 0;
+  let scalePulse = 0;
+  let frames = 0;
+  const maxFrames = 80;
+  const anim = setInterval(() => {
+    rotation += 0.12;
+    scalePulse = 1 + 0.05 * Math.sin(frames * 0.2);
+    drawEnhancedSeal(rotation, scalePulse);
+    frames++;
+    if (frames >= maxFrames) {
+      clearInterval(anim);
+      showAbility();
     }
-    ctx.closePath();
-    ctx.strokeStyle = "#88f0ff";
-    ctx.lineWidth = 3;
-    ctx.stroke();
-
-    ctx.restore();
+  }, 30);
+}
+function drawEnhancedSeal(rotation = 0, scale = 1) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(rotation);
+  ctx.scale(scale, scale);
+  ctx.beginPath();
+  ctx.arc(0, 0, 120, 0, Math.PI * 2);
+  ctx.strokeStyle = "#44f8ff";
+  ctx.lineWidth = 6;
+  ctx.shadowColor = "#44f8ff";
+  ctx.shadowBlur = 15;
+  ctx.stroke();
+  ctx.beginPath();
+  const points = 5;
+  const outer = 80;
+  const inner = 30;
+  for (let i = 0; i < points * 2; i++) {
+    const r = i % 2 === 0 ? outer : inner;
+    const angle = i * Math.PI / points;
+    const x = Math.cos(angle) * r;
+    const y = Math.sin(angle) * r;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
   }
-
-  // 神印覺醒動畫與顯示能力
-  function startAwakening() {
-    if (!selectedRole || !selectedGod) {
-      alert("請先選擇角色與神系");
-      return;
-    }
-
-    let rotation = 0;
-    let frames = 0;
-    const maxFrames = 80;
-    const anim = setInterval(() => {
-      rotation += 0.1;
-      drawSeal(rotation);
-      frames++;
-      if (frames >= maxFrames) {
-        clearInterval(anim);
-        showAbility();
-      }
-    }, 30);
+  ctx.closePath();
+  ctx.strokeStyle = "#88f0ff";
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  for (let i = 0; i < 10; i++) {
+    const angle = i * (Math.PI * 2) / 10;
+    const x = Math.cos(angle) * 100;
+    const y = Math.sin(angle) * 100;
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = "#ffffffaa";
+    ctx.fill();
   }
-
-  // 顯示覺醒結果與試煉提示
-  function showAbility() {
-    const resultDiv = document.getElementById("result");
-    const abilities = abilityPool[selectedRole];
-    const randomAbility = abilities[Math.floor(Math.random() * abilities.length)];
-    const bonus = godBonus[selectedGod] || "";
-
-    resultDiv.innerHTML =
-      `<strong>你作為 <span style="color:#44f8ff;">${selectedRole}</span> ，被 <span style="color:#88f0ff;">${selectedGod}</span> 選中！</strong><br>` +
-      `獲得能力：<span style="color:#aaffaa;">${randomAbility}</span><br>` +
-      `神力加成：<span style="color:#ffaa44;">${bonus}</span><br><br>` +
-      `<button onclick="startTrial()">前往試煉</button>`;
-
-  }
-
-  // 試煉展示
-  function startTrial() {
-    showStep(4);
-    const bgDiv = document.getElementById("trialBackground");
-    const trialText = document.getElementById("trialText");
-
-    bgDiv.style.backgroundImage = `url(${trialBackgrounds[selectedGod] || ""})`;
-
-    const trialMessages = {
-      若神: "神光映照，覺醒你的潛能，跨越生死的界限。",
-      土地神: "大地之力環繞，汲取自然的恩賜，堅韌不拔。",
-      強神: "雷霆之怒凝聚，爆發你的力量，征服敵手。",
-      山谷神: "靜謐山谷灣湖內巨神木.亦正亦邪亦對亦錯天秤般的試煉等著你。",
-      惡神: "黑暗深淵低語，邪惡的力量試煉你的心志。",
-    };
-
-    trialText.textContent = trialMessages[selectedGod] || "未知的神祕試煉展開。";
-  }
+  ctx.restore();
+}
+function showAbility() {
+  const resultDiv = document.getElementById("result");
+  const abilities = abilityPool[selectedRole];
+  const randomAbility = abilities[Math.floor(Math.random() * abilities.length)];
+  const bonus = godBonus[selectedGod] || "";
+  resultDiv.innerHTML =
+    `<strong>你作為 <span style="color:#44f8ff;">${selectedRole}</span> ，被 <span style="color:#88f0ff;">${selectedGod}</span> 選中！</strong><br>` +
+    `獲得能力：<span style="color:#aaffaa;">${randomAbility}</span><br>` +
+    `神力加成：<span style="color:#ffaa44;">${bonus}</span><br><br>` +
+    `<button onclick="startTrial()">前往試煉</button>`;
+}
+function startTrial() {
+  showStep(4);
+  const bgDiv = document.getElementById("trialBackground");
+  const trialText = document.getElementById("trialText");
+  bgDiv.style.backgroundImage = `url(${trialBackgrounds[selectedGod] || ""})`;
+  const trialMessages = {
+    若神: "神光映照，覺醒你的潛能，跨越生死的界限。",
+    土地神: "大地之力環繞，汲取自然的恩賜，堅韌不拔。",
+    強神: "雷霆之怒凝聚，爆發你的力量，征服敵手。",
+    山谷神: "靜謐山谷召喚，神秘的試煉等待著你。",
+    惡神: "黑暗深淵低語，邪惡的力量試煉你的心志。",
+  };
+  trialText.textContent = trialMessages[selectedGod] || "未知的神祕試煉展開。";
+}
 </script>
 </body>
 </html>
