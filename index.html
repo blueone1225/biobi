@@ -1,268 +1,224 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>惡靈古堡3 - 錯位場景模擬</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  <title>神印加護 · 能力覺醒</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      touch-action: none;
-      font-family: sans-serif;
+    body {
+      margin: 0; padding: 0;
+      background: radial-gradient(#0a0a0a, #030303);
+      font-family: "Noto Serif TC", serif;
+      color: white;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 100vh; overflow: hidden;
+      transition: filter 0.5s ease;
     }
-    #viewport {
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
+    body.blurred { filter: blur(8px); }
+
+    #overlay { position: absolute; top:0;left:0;right:0;bottom:0;
+      pointer-events:none;
+      background: radial-gradient(circle, rgba(255,255,255,0.0) 40%, rgba(255,255,255,0.1) 55%, rgba(255,255,255,0.0) 70%);
+      opacity: 0; transition: opacity 0.5s ease;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { transform: scale(0.95); opacity:0.2;}
+      50% { transform: scale(1.05); opacity:0.35;}
+    }
+
+    h1 { margin-bottom:10px;color:#88f0ff;text-shadow: 0 0 5px #5fffd6;}
+
+    #main-wrapper {
       position: relative;
-      touch-action: none;
+      border:3px solid #44f8ff;border-radius:15px;
+      padding:20px 30px;box-shadow:0 0 25px #44f8ffaa;
+      display:inline-block;
+      background-size:cover;background-position:center;
+      background-repeat:no-repeat;
+      min-width:680px;
+      transition: background-image 0.5s ease;
     }
-    #gameArea {
-      width: 2000px;
-      height: 1000px;
-      background-image: url('https://image1.gamme.com.tw/news2/2025/16/3/qZ7H05_ew6GdqauZkZ2dl43Y1d4.webp');
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-position: center;
-      position: absolute;
-      left: 0;
-      top: 0;
-      touch-action: none;
-      transform-origin: center center;
+    #divinity-title {
+      font-size:26px;font-weight:700;
+      text-align:center;margin-bottom:15px;
+      color:#ffffff;text-shadow: 0 0 12px #000;
+      user-select:none;
+      background:rgba(0,0,0,0.6);
+      padding:10px;border-radius:10px;
     }
-    .character {
-      position: absolute;
-      width: 200px;
-      height: 200px;
-      background-size: cover;
-      background-position: center;
+    #main-container { display:flex;gap:40px;align-items:flex-start;justify-content:center; }
+    canvas {
+      background: #000;border:3px solid #444;
+      border-radius:10px;
+      box-shadow:0 0 15px #00ffff80;
     }
-    #jill {
-      top: 100px;
-      left: 1500px;
-      background-image: url('https://s.yimg.com/os/creatr-uploaded-images/2019-12/d92e0c30-254b-11ea-bf72-ccd9056172b3');
+    button {
+      margin-top:20px;padding:12px 24px;font-size:16px;
+      background:#1e1e1e;color:#fff;
+      border:2px solid #44f8ff;border-radius:6px;
+      cursor:pointer;transition:0.3s;
     }
-    #dog {
-      top: 680px;
-      left: -300px;
-      background-image: url('https://i.ytimg.com/vi/_Yo7RTDRQ6g/hqdefault.jpg');
+    button:hover { background:#44f8ff;color:black; }
+
+    #result {
+      margin-top:20px;font-size:20px;color:#ffffff;
+      text-shadow:0 0 10px #000;
+      min-height:28px;
+      background:rgba(0,0,0,0.6);
+      padding:8px 12px;
+      border-radius:8px;
     }
-    #corpse {
-      top: 720px;
-      left: 870px;
-      width: 240px;
-      height: 160px;
-      background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJPxwWQCF8yT9TcKvehq7MDzG2er1grlblEVa_srYZc0iUIyzY');
-      background-size: cover;
+
+    #prophecy-list {
+      background:#111a1f;border:2px solid #44f8ff;
+      border-radius:10px;padding:20px 25px;
+      width:220px;max-height:300px;overflow-y:auto;
+      box-shadow:0 0 12px #44f8ffaa;
+      user-select:none;
     }
-    .speech-bubble {
-      position: absolute;
-      background: #fff;
-      padding: 8px;
-      border-radius: 10px;
-      border: 2px solid #333;
-      max-width: 120px;
-      font-size: 14px;
-      z-index: 10;
+    #prophecy-list h2 {
+      margin-top:0;margin-bottom:15px;font-size:22px;
+      color:#44f8ff;text-align:center;
+      text-shadow:0 0 8px #44f8ffcc;
     }
-    #dog-bubble {
-      top: 630px;
-      left: 800px;
-      display: none;
+    #prophecy-list ul {
+      list-style:none;padding:0;margin:0;
+      font-size:18px;line-height:1.6;color:#cceeff;
     }
-    #blood {
-      position: absolute;
-      width: 160px;
-      height: 160px;
-      background-image: url('https://pngimg.com/uploads/blood/blood_PNG6139.png');
-      background-size: contain;
-      background-repeat: no-repeat;
-      top: 710px;
-      left: 880px;
-      opacity: 0;
+    #prophecy-list li {
+      padding:4px 0;border-bottom:1px solid #44f8ff33;
+      transition: background 0.4s ease;
     }
-    @keyframes splatter {
-      0% { opacity: 0; transform: scale(0.3); }
-      100% { opacity: 1; transform: scale(1); }
+    #prophecy-list li.highlight {
+      background: linear-gradient(90deg, #fff176, #ffc107);
+      color: black;
+      animation: flash 1s ease-out;
     }
-    #replayBtn, #fullscreenBtn {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      z-index: 100;
-      margin-bottom: 10px;
-    }
-    #fullscreenBtn {
-      top: 60px;
-    }
-    #controlPanel {
-      position: absolute;
-      top: 120px;
-      left: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 100;
-    }
-    #controlPanel button {
-      padding: 8px 16px;
-      font-size: 14px;
+    @keyframes flash {
+      0%,100% { opacity:1; }
+      50% { opacity:0.5; }
     }
   </style>
 </head>
 <body>
-
-<div id="viewport">
-  <button id="replayBtn" onclick="restartScene()">重播</button>
-  <button id="fullscreenBtn">全螢幕</button>
-  <div id="controlPanel">
-    <button onclick="restartScene()">重播</button>
-    <button onclick="alert('尚未實作')">道具</button>
-    <button onclick="alert('尚未實作')">切換角色</button>
+  <div id="overlay"></div>
+  <h1>神印加護 · 能力覺醒</h1>
+  <div id="main-wrapper">
+    <div id="divinity-title">神祉：－－－</div>
+    <div id="main-container">
+      <div>
+        <canvas id="canvas" width="300" height="300"></canvas>
+        <button id="activate">啟動神印</button>
+        <div id="result"></div>
+      </div>
+      <div id="prophecy-list">
+        <h2>神示榜 · 預覽神力</h2>
+        <ul id="prophecy-ul"></ul>
+      </div>
+    </div>
   </div>
-  <div id="gameArea">
-    <div id="jill" class="character"></div>
-    <div id="dog" class="character"></div>
-    <div id="corpse" class="character"></div>
-    <div id="blood"></div>
-    <div id="dog-bubble" class="speech-bubble">嗷嗚… 真香！</div>
-  </div>
-</div>
 
-<audio id="biteSound" src="https://cdn.pixabay.com/audio/2021/08/08/audio_661667e56c.mp3"></audio>
-<audio id="bloodSound" src="https://cdn.pixabay.com/audio/2023/09/03/audio_d2a6c0f76f.mp3"></audio>
+  <script>
+    const ctx=canvas.getContext("2d");
+    const result=document.getElementById("result");
+    const prophecyUl=document.getElementById("prophecy-ul");
+    const divinityTitle=document.getElementById("divinity-title");
+    const mainWrapper=document.getElementById("main-wrapper");
+    const overlay=document.getElementById("overlay");
+    const allAbilitiesList=[];
 
-<script>
-  const dog = document.getElementById('dog');
-  const jill = document.getElementById('jill');
-  const blood = document.getElementById('blood');
-  const bubble = document.getElementById('dog-bubble');
-  const gameArea = document.getElementById('gameArea');
-  const biteSound = document.getElementById('biteSound');
-  const bloodSound = document.getElementById('bloodSound');
+    const divinityAbilities={ "若神":["木系微控 🌿","火焰強襲 🔥","原子穿梭力 ✨"],
+      "土地神":["水行冥想 💧","體術覺醒 💪"],
+      "強神":["鋼鐵防禦 ⛓️","毒霧操控 ☠️","影縛幽行 🌑","雷擊連環 ⚡"],
+      "山谷神":["神語抗性 🌀","冰封領域 ❄️","光芒淨化 ✨"],
+      "惡神":["靈魂束縛 🔗","沙塵掩護 🌪️","幻象迷蹤 🎭"]
+    };
+    const divinityBackgrounds={
+      "若神":"https://i.imgur.com/xstAt6B.jpeg",
+      "土地神":"https://otakuusamagazine.com/wp-content/uploads/2025/01/teogonia-pv-480x360.jpg",
+      "強神":"https://yt3.ggpht.com/uvmIHqQWPYNqU2OdUw6FYOIiXxZfYuZw4FExu9GpYlMhaqrz1wTPNvjFf_lBTCuzgvFWfujEkyJ7=s800-c-fcrop64=1,3f1b0000cdbaffff-rw-nd-v1",
+      "山谷神":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB31qCHoIEW88Q-jfet_iAMAd75CJCb3AZ1g&s",
+      "惡神":"https://staticg.sportskeeda.com/editor/2025/06/68a9f-17498350533509-1920.jpg"
+    };
+    const weightedDivinities=[
+      {name:"若神",weight:1},
+      {name:"山谷神",weight:3},
+      {name:"強神",weight:4},
+      {name:"土地神",weight:6},
+      {name:"惡神",weight:6}
+    ];
 
-  let scale = 1, startX = 0, startY = 0, isDragging = false;
+    for (let arr of Object.values(divinityAbilities)) allAbilitiesList.push(...arr);
+    function renderList(){
+      prophecyUl.innerHTML="";
+      allAbilitiesList.forEach(a=>{
+        const li=document.createElement("li");
+        li.textContent=a; li.id="li-"+a;
+        prophecyUl.appendChild(li);
+      });
+    }
+    renderList();
 
-  function playSounds() {
-    biteSound.currentTime = 0;
-    bloodSound.currentTime = 0;
-    biteSound.play();
-    setTimeout(() => bloodSound.play(), 1000);
-  }
-
-  function dogEnterAndBite() {
-    let left = -300;
-    const stopAt = 880;
-    const walkInterval = setInterval(() => {
-      left += 5;
-      dog.style.left = `${left}px`;
-      if (left >= stopAt) {
-        clearInterval(walkInterval);
-        startBite();
+    function weightedRandom(weights){
+      const total=weights.reduce((s,w)=>s+w.weight,0);
+      let r=Math.random()*total;
+      for (let w of weights){
+        if(r<w.weight) return w.name;
+        r-=w.weight;
       }
-    }, 30);
-  }
-
-  function startBite() {
-    blood.style.animation = 'splatter 2s forwards';
-    bubble.style.display = 'block';
-    playSounds();
-  }
-
-  function moveJillRandomly() {
-    setInterval(() => {
-      const randX = 1500 + Math.random() * 200;
-      const randY = 100 + Math.random() * 100;
-      jill.style.left = `${randX}px`;
-      jill.style.top = `${randY}px`;
-    }, 3000);
-  }
-
-  function moveJillRandomlyInPlace() {
-    setInterval(() => {
-      const offsetX = (Math.random() - 0.5) * 20;
-      const offsetY = (Math.random() - 0.5) * 20;
-      jill.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-    }, 1000);
-  }
-
-  function restartScene() {
-    dog.style.left = '-300px';
-    blood.style.animation = 'none';
-    bubble.style.display = 'none';
-    jill.style.transform = 'translate(0,0)';
-    void blood.offsetWidth;
-    setTimeout(dogEnterAndBite, 300);
-  }
-
-  // 拖曳
-  gameArea.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 1) {
-      isDragging = true;
-      startX = e.touches[0].clientX - gameArea.offsetLeft;
-      startY = e.touches[0].clientY - gameArea.offsetTop;
     }
-  });
-  gameArea.addEventListener('touchmove', (e) => {
-    if (isDragging && e.touches.length === 1) {
-      const x = e.touches[0].clientX - startX;
-      const y = e.touches[0].clientY - startY;
-      gameArea.style.left = `${x}px`;
-      gameArea.style.top = `${y}px`;
+
+    function drawSeal(rot=0){
+      ctx.clearRect(0,0,300,300);
+      ctx.save();
+      ctx.translate(150,150);
+      ctx.rotate(rot);
+      ctx.strokeStyle="#00ffff";ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(0,0,120,0,2*Math.PI);ctx.stroke();
+      ctx.strokeStyle="#44aaff";ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(0,0,60,0,2*Math.PI);ctx.stroke();
+      ctx.strokeStyle="#88f0ff";
+      for(let i=0;i<6;i++){
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        let ang=(i/6)*2*Math.PI;
+        ctx.lineTo(100*Math.cos(ang),100*Math.sin(ang));
+        ctx.stroke();
+      }
+      ctx.restore();
     }
-  });
-  gameArea.addEventListener('touchend', () => {
-    isDragging = false;
-  });
+    drawSeal();
 
-  // Pinch zoom
-  let initialDistance = 0;
-  document.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 2) {
-      initialDistance = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-    }
-  });
-  document.addEventListener('touchmove', (e) => {
-    if (e.touches.length === 2) {
-      const newDistance = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-      const zoom = newDistance / initialDistance;
-      scale = Math.min(2, Math.max(0.5, scale * zoom));
-      gameArea.style.transform = `scale(${scale})`;
-      initialDistance = newDistance;
-    }
-  });
-
-  // 全螢幕
-  document.getElementById('fullscreenBtn').onclick = () => {
-    const elem = document.documentElement;
-    if (!document.fullscreenElement) {
-      elem.requestFullscreen().catch(err => alert(`無法進入全螢幕：${err.message}`));
-    } else {
-      document.exitFullscreen();
-    }
-  };
-
-  // 橫直螢幕變更提示
-  window.addEventListener('orientationchange', () => {
-    console.log(`螢幕方向變更為：${screen.orientation.type}`);
-  });
-
-  window.onload = () => {
-    dogEnterAndBite();
-    moveJillRandomly();
-    moveJillRandomlyInPlace();
-  }
-</script>
-
+    let anim=false;
+    activate.onclick=()=>{
+      if(anim) return;
+      anim=true;
+      document.body.classList.add("blurred");
+      overlay.style.opacity=1;
+      result.textContent="神印啟動中…";
+      const divine=weightedRandom(weightedDivinities);
+      divinityTitle.textContent="神祉："+divine;
+      mainWrapper.style.backgroundImage=`url('${divinityBackgrounds[divine]}')`;
+      let rot=0,c=0;
+      const iv=setInterval(()=>{
+        rot+=0.15;drawSeal(rot);c++;
+        if(c>30){
+          clearInterval(iv);
+          anim=false;
+          document.body.classList.remove("blurred");
+          overlay.style.opacity=0;
+          const pool=divinityAbilities[divine];
+          const abil=pool[Math.floor(Math.random()*pool.length)];
+          result.textContent="你獲得了："+abil;
+          const li=document.getElementById("li-"+abil);
+          if(li){
+            li.classList.add("highlight");
+            setTimeout(()=>li.classList.remove("highlight"),2000);
+          }
+        }
+      },50);
+    };
+  </script>
 </body>
 </html>
